@@ -54,6 +54,10 @@
 # include "uip.h"
 #endif
 
+#ifdef IOLIBRARY
+#include "socket.h"
+#endif
+
 #if !defined(WITH_CONTIKI) && !defined(RIOT_VERSION)
  /* define generic PKTINFO for IPv4 */
 #if defined(IP_PKTINFO)
@@ -577,6 +581,9 @@ coap_network_send(coap_socket_t *sock, const coap_session_t *session, const uint
   } else if (sock->flags & COAP_SOCKET_CONNECTED) {
 #ifdef _WIN32
     bytes_written = send(sock->fd, (const char *)data, (int)datalen, 0);
+#elif IOLIBRARY
+    uint8_t socket_number = 0;
+    bytes_written = send(socket_number, data, datalen);
 #else
     bytes_written = send(sock->fd, data, datalen, 0);
 #endif
@@ -715,6 +722,11 @@ coap_network_send(coap_socket_t *sock, const coap_session_t *session, const uint
 #else
 #ifdef HAVE_STRUCT_CMSGHDR
     bytes_written = sendmsg(sock->fd, &mhdr, 0);
+#elif IOLIBRARY
+    uint8_t socket_number = 0; // TBA
+    uint8_t* addr = &session->addr_info.remote.addr.sa.sa_data;
+    uint8_t port = 0; // TBA
+    bytes_written = sendto(socket_number, data, datalen, addr, port);
 #elif !defined(CONTIKI) /* ! HAVE_STRUCT_CMSGHDR */
     bytes_written = sendto(sock->fd, data, datalen, 0,
                            &session->addr_info.remote.addr.sa,
