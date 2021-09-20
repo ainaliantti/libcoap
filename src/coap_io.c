@@ -582,8 +582,7 @@ coap_network_send(coap_socket_t *sock, const coap_session_t *session, const uint
 #ifdef _WIN32
     bytes_written = send(sock->fd, (const char *)data, (int)datalen, 0);
 #elif IOLIBRARY
-    uint8_t socket_number = 0;
-    bytes_written = send(socket_number, data, datalen);
+    bytes_written = send(sock->fd, data, datalen);
 #else
     bytes_written = send(sock->fd, data, datalen, 0);
 #endif
@@ -723,12 +722,11 @@ coap_network_send(coap_socket_t *sock, const coap_session_t *session, const uint
 #ifdef HAVE_STRUCT_CMSGHDR
     bytes_written = sendmsg(sock->fd, &mhdr, 0);
 #elif IOLIBRARY
-    uint8_t socket_number = 0;
     // Defined for AF_INET
     uint8_t* socket_data = &session->addr_info.remote.addr.sa.sa_data;
     uint8_t port = socket_data[0];
     uint8_t addr[] = {socket_data[1], socket_data[2], socket_data[3], socket_data[4]};
-    bytes_written = sendto(socket_number, data, datalen, addr, port);
+    bytes_written = sendto(sock->fd, data, datalen, addr, port);
 #elif !defined(CONTIKI) /* ! HAVE_STRUCT_CMSGHDR */
     bytes_written = sendto(sock->fd, data, datalen, 0,
                            &session->addr_info.remote.addr.sa,
