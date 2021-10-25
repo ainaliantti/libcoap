@@ -8,6 +8,8 @@ LIBCOAP_API_VERSION = $(shell sed -ne 's/^LIBCOAP_API_VERSION=\([0-9]\+\).*$$/\1
 
 coap_include_dir = $(include_dir)/coap$(LIBCOAP_API_VERSION)
 
+CC=arm-none-eabi-gcc
+
 all: libcoap	
 
 # coap library
@@ -37,12 +39,9 @@ ${OBJS}: $(coap_include_dir)/coap.h
 
 libcoap: ${OBJS}
 
-libcoap.a:
-	ar -rc libcoap.a ${OBJS}
-
 clean:
 	rm -f ${OBJS} libcoap.a
 
 install:
-	cp libcoap.a $(artifacts_dir)/
+	ar -rc libcoap.a ${OBJS} && mv libcoap.a $(artifacts_dir)/
 .PHONY: clean

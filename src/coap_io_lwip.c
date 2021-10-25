@@ -12,12 +12,6 @@
 #include "coap3/coap_internal.h"
 #include <lwip/udp.h>
 
-#if NO_SYS
-pthread_mutex_t lwprot_mutex = PTHREAD_MUTEX_INITIALIZER;
-pthread_t lwprot_thread = (pthread_t)0xDEAD;
-int lwprot_count = 0;
-#endif
-
 #if 0
 void coap_packet_copy_source(coap_packet_t *packet, coap_address_t *target)
 {
