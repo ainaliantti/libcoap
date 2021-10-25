@@ -205,7 +205,7 @@ coap_dgram_write(void *ctx, const unsigned char *send_buffer,
   return result;
 }
 
-#if defined(MBEDTLS_KEY_EXCHANGE__SOME__PSK_ENABLED) && defined(MBEDTLS_SSL_SRV_C)
+#if defined(MBEDTLS_SSL_PROTO_DTLS) && defined(MBEDTLS_KEY_EXCHANGE__SOME__PSK_ENABLED) && defined(MBEDTLS_SSL_SRV_C)
 /*
  * Server side PSK callback
  */
@@ -213,7 +213,7 @@ static int psk_server_callback(void *p_info, mbedtls_ssl_context *ssl,
                   const unsigned char *name, size_t name_len )
 {
   coap_session_t *c_session = (coap_session_t *)p_info;
-  uint8_t buf[COAP_DTLS_MAX_PSK];
+  uint8_t buf[128];
   size_t psk_len;
   coap_dtls_spsk_t *setup_data;
   coap_mbedtls_env_t *m_env;
@@ -253,7 +253,7 @@ static int psk_server_callback(void *p_info, mbedtls_ssl_context *ssl,
   mbedtls_ssl_set_hs_psk(ssl, buf, psk_len);
   return 0;
 }
-#endif /* MBEDTLS_KEY_EXCHANGE__SOME__PSK_ENABLED && MBEDTLS_SSL_SRV_C */
+#endif /* MBEDTLS_SSL_PROTO_DTLS && MBEDTLS_KEY_EXCHANGE__SOME__PSK_ENABLED && MBEDTLS_SSL_SRV_C */
 
 static char*
 get_san_or_cn_from_cert(mbedtls_x509_crt *crt)
@@ -905,7 +905,6 @@ static int setup_server_ssl_session(coap_session_t *c_session,
 #if defined(MBEDTLS_SSL_PROTO_DTLS)
   mbedtls_ssl_conf_handshake_timeout(&m_env->conf, COAP_DTLS_RETRANSMIT_MS,
                                      COAP_DTLS_RETRANSMIT_TOTAL_MS);
-#endif /* MBEDTLS_SSL_PROTO_DTLS */
 
   if (m_context->psk_pki_enabled & IS_PSK) {
 #if defined(MBEDTLS_KEY_EXCHANGE__SOME__PSK_ENABLED)
@@ -917,6 +916,7 @@ static int setup_server_ssl_session(coap_session_t *c_session,
     coap_log(LOG_WARNING, "PSK not enabled in Mbed TLS library\n");
 #endif /* MBEDTLS_KEY_EXCHANGE__SOME__PSK_ENABLED */
   }
+#endif /* MBEDTLS_SSL_PROTO_DTLS */
 
   if (m_context->psk_pki_enabled & IS_PKI) {
     ret = setup_pki_credentials(&m_env->cacert, &m_env->public_cert,
@@ -976,11 +976,9 @@ set_ciphersuites(mbedtls_ssl_config *conf, coap_enc_method_t method)
         if (cur->max_minor_ver < MBEDTLS_SSL_MINOR_VERSION_3) {
           /* Minimum of TLS1.2 required - skip */
         }
-#if defined(MBEDTLS_KEY_EXCHANGE__SOME__PSK_ENABLED)
         else if (mbedtls_ssl_ciphersuite_uses_psk(cur)) {
           psk_count++;
         }
-#endif /* MBEDTLS_KEY_EXCHANGE__SOME__PSK_ENABLED */
         else {
           pki_count++;
         }
@@ -1010,12 +1008,10 @@ set_ciphersuites(mbedtls_ssl_config *conf, coap_enc_method_t method)
         if (cur->max_minor_ver < MBEDTLS_SSL_MINOR_VERSION_3) {
           /* Minimum of TLS1.2 required - skip */
         }
-#if defined(MBEDTLS_KEY_EXCHANGE__SOME__PSK_ENABLED)
         else if (mbedtls_ssl_ciphersuite_uses_psk(cur)) {
           *psk_list = *list;
           psk_list++;
         }
-#endif /* MBEDTLS_KEY_EXCHANGE__SOME__PSK_ENABLED */
         else {
           *pki_list = *list;
           pki_list++;
@@ -1062,9 +1058,9 @@ static int setup_client_ssl_session(coap_session_t *c_session,
 
   if (m_context->psk_pki_enabled & IS_PSK) {
 #if defined(MBEDTLS_KEY_EXCHANGE__SOME__PSK_ENABLED)
-    uint8_t identity[COAP_DTLS_MAX_PSK_IDENTITY];
+    uint8_t identity[64];
     size_t identity_len;
-    uint8_t psk_key[COAP_DTLS_MAX_PSK];
+    uint8_t psk_key[64];
     size_t psk_len;
     size_t max_identity_len = sizeof(identity);
 
@@ -1581,8 +1577,6 @@ void coap_dtls_session_update_mtu(coap_session_t *c_session)
     mbedtls_ssl_set_mtu(&m_env->ssl, (uint16_t)c_session->mtu);
 #endif /* MBEDTLS_VERSION_NUMBER >= 0x02100100 */
   }
-#else /* ! MBEDTLS_SSL_PROTO_DTLS */
-  (void)c_session;
 #endif /* MBEDTLS_SSL_PROTO_DTLS */
 }
 

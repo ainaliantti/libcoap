@@ -91,8 +91,7 @@ handle matching the URI which then can be Observable.
 
 The *coap_resource_init*() function returns a newly created _resource_ of
 type _coap_resource_t_ * .  _uri_path_ specifies the uri string path to match
-against.  Normally there is no need for the leading '/' - e.g. just
-"full/path/for/resource".  _flags_ is used to define whether the
+against.  _flags_ is used to define whether the
 _resource_ is of type Confirmable Message or Non-Confirmable Message for
 any "observe" responses.  See *coap_observe*(3).
 _flags_ can be one of the following definitions or'ed together.
@@ -338,15 +337,16 @@ hnd_get(coap_resource_t *resource, coap_session_t *session,
 const coap_pdu_t *request, const coap_string_t *query, coap_pdu_t *response) {
 
   coap_str_const_t *get_uri_path;
-
   /* Remove (void) definition if variable is used */
   (void)resource;
   (void)session;
   (void)request;
   (void)query;
+  (void)response;
 
   /*
-   * Get the specific resouce being requested to determine what the response is
+   * request will be NULL if an Observe triggered request, so the uri_path,
+   * if needed, must be abstracted from the resource.
    * The uri_path string is a const pointer
    */
 

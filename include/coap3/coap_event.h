@@ -24,34 +24,34 @@
  * Scalar type to represent different events, e.g. DTLS events or
  * retransmission timeouts.
  */
-typedef enum coap_event_t {
+ typedef unsigned int coap_event_t;
+
 /**
  * (D)TLS events for COAP_PROTO_DTLS and COAP_PROTO_TLS
  */
-  COAP_EVENT_DTLS_CLOSED       = 0x0000,
-  COAP_EVENT_DTLS_CONNECTED    = 0x01DE,
-  COAP_EVENT_DTLS_RENEGOTIATE  = 0x01DF,
-  COAP_EVENT_DTLS_ERROR        = 0x0200,
+#define COAP_EVENT_DTLS_CLOSED        0x0000
+#define COAP_EVENT_DTLS_CONNECTED     0x01DE
+#define COAP_EVENT_DTLS_RENEGOTIATE   0x01DF
+#define COAP_EVENT_DTLS_ERROR         0x0200
 
 /**
  * TCP events for COAP_PROTO_TCP and COAP_PROTO_TLS
  */
-  COAP_EVENT_TCP_CONNECTED     = 0x1001,
-  COAP_EVENT_TCP_CLOSED        = 0x1002,
-  COAP_EVENT_TCP_FAILED        = 0x1003,
+#define COAP_EVENT_TCP_CONNECTED      0x1001
+#define COAP_EVENT_TCP_CLOSED         0x1002
+#define COAP_EVENT_TCP_FAILED         0x1003
 
 /**
  * CSM exchange events for reliable protocols only
  */
-  COAP_EVENT_SESSION_CONNECTED = 0x2001,
-  COAP_EVENT_SESSION_CLOSED    = 0x2002,
-  COAP_EVENT_SESSION_FAILED    = 0x2003,
+#define COAP_EVENT_SESSION_CONNECTED  0x2001
+#define COAP_EVENT_SESSION_CLOSED     0x2002
+#define COAP_EVENT_SESSION_FAILED     0x2003
 
 /**
- * (Q-)BLOCK receive errors
+ * BLOCK2 receive errors
  */
-  COAP_EVENT_PARTIAL_BLOCK     = 0x3001
-} coap_event_t;
+#define COAP_EVENT_PARTIAL_BLOCK      0x3001
 
 /**
  * Type for event handler functions that can be registered with a CoAP

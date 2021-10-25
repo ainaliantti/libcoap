@@ -68,10 +68,6 @@
                             GNUTLS_KEY_KEY_CERT_SIGN
 #endif /* GNUTLS_VERSION_NUMBER >= 0x030606 */
 
-#ifndef GNUTLS_CRT_RAW
-#define GNUTLS_CRT_RAW GNUTLS_CRT_RAWPK
-#endif /* GNUTLS_CRT_RAW */
-
 #ifdef _WIN32
 #define strcasecmp _stricmp
 #endif
@@ -516,9 +512,9 @@ psk_client_callback(gnutls_session_t g_session,
                   (coap_session_t *)gnutls_transport_get_ptr(g_session);
   coap_gnutls_context_t *g_context;
   coap_dtls_cpsk_t *setup_data;
-  uint8_t identity[COAP_DTLS_MAX_PSK_IDENTITY];
+  uint8_t identity[64];
   size_t identity_len;
-  uint8_t psk[COAP_DTLS_MAX_PSK];
+  uint8_t psk[64];
   size_t psk_len;
   const char *hint = gnutls_psk_client_get_hint(g_session);
   size_t hint_len = 0;
@@ -1798,7 +1794,7 @@ psk_server_callback(gnutls_session_t g_session,
   coap_gnutls_context_t *g_context;
   coap_dtls_spsk_t *setup_data;
   size_t identity_len = 0;
-  uint8_t buf[COAP_DTLS_MAX_PSK];
+  uint8_t buf[64];
   size_t psk_len;
 
   if (c_session == NULL || c_session->context == NULL ||

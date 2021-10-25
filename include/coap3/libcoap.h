@@ -25,7 +25,7 @@
 #include <ws2tcpip.h>
 typedef SSIZE_T ssize_t;
 typedef USHORT in_port_t;
-#elif !defined (CONTIKI)
+#elif !defined (CONTIKI) && !defined (WITH_LWIP)
 #include <netinet/in.h>
 #include <sys/socket.h>
 #endif /* CONTIKI */
